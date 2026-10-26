@@ -1,0 +1,103 @@
+|_hoodie_commit_time|_hoodie_commit_seqno |_hoodie_record_key|_hoodie_partition_path |_hoodie_file_name                                                         |record_key     |kafka_topic|kafka_partition|kafka_offset|kafka_timestamp        |kafka_message                                                                                                                                                                                |city       |region  |country      |latitude|longitude|weather_time    |timezone       |fetched_at_utc                  |temperature_c|feels_like_c|humidity_percent|precipitation_mm|wind_speed_kmh|
++-------------------+---------------------+------------------+-----------------------+--------------------------------------------------------------------------+---------------+-----------+---------------+------------+-----------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+-------------+--------+---------+----------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+
+|20261024004253273  |20261024004253273_0_0|cityweather:0:1   |weather_date=2026-10-24|619ede17-56ae-4aec-b137-b10845cb99d4-0_0-39-2416_20261024011312720.parquet|cityweather:0:1|cityweather|0              |1     |2026-10-24 00:37:35.37 |{"city": "Dallas", "region": "Texas", "country": "United States", "latitude": 32.78306, "longitude": -96.80667, "weather_time": "2026-10-24T00:30", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T05:37:35.358774+00:00", "temperature_c": 18.2, "feels_like_c": 16.6, "humidity_percent": 51, "precipitation_mm": 0.0, "wind_speed_kmh": 7.1}         |Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-24T00:30|America/Chicago|2026-10-24T05:37:35.358774+00:00|18.2         |16.6        |51              |0.0             |7.1           |
+|20261024004331742  |20261024004331742_0_1|cityweather:0:2   |weather_date=2026-10-24|619ede17-56ae-4aec-b137-b10845cb99d4-0_0-39-2416_20261024011312720.parquet|cityweather:0:2|cityweather|0              |2     |2026-10-24 00:43:22.06 |{"city": "Frisco", "region": "Texas", "country": "United States", "latitude": 33.15067, "longitude": -96.82361, "weather_time": "2026-10-24T00:30", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T05:43:22.016920+00:00", "temperature_c": 18.2, "feels_like_c": 15.1, "humidity_percent": 46, "precipitation_mm": 0.0, "wind_speed_kmh": 15.5}        |Frisco     |Texas   |United States|33.15067|-96.82361|2026-10-24T00:30|America/Chicago|2026-10-24T05:43:22.016920+00:00|18.2         |15.1        |46              |0.0             |15.5          |
+|20261024010049998  |20261024010049998_0_2|cityweather:0:3   |weather_date=2026-10-24|619ede17-56ae-4aec-b137-b10845cb99d4-0_0-39-2416_20261024011312720.parquet|cityweather:0:3|cityweather|0              |3     |2026-10-24 01:00:45.697|{"city": "Bentonville", "region": "Arkansas", "country": "United States", "latitude": 36.37285, "longitude": -94.20882, "weather_time": "2026-10-24T01:00", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T06:00:45.687260+00:00", "temperature_c": 14.7, "feels_like_c": 12.4, "humidity_percent": 66, "precipitation_mm": 0.0, "wind_speed_kmh": 13.2}|Bentonville|Arkansas|United States|36.37285|-94.20882|2026-10-24T01:00|America/Chicago|2026-10-24T06:00:45.687260+00:00|14.7         |12.4        |66              |0.0             |13.2          |
+|20261024011123453  |20261024011123453_0_3|cityweather:0:4   |weather_date=2026-10-24|619ede17-56ae-4aec-b137-b10845cb99d4-0_0-39-2416_20261024011312720.parquet|cityweather:0:4|cityweather|0              |4     |2026-10-24 01:11:00.708|{"city": "Austin", "region": "Texas", "country": "United States", "latitude": 30.26715, "longitude": -97.74306, "weather_time": "2026-10-24T01:00", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T06:11:00.698224+00:00", "temperature_c": 18.9, "feels_like_c": 18.7, "humidity_percent": 61, "precipitation_mm": 0.0, "wind_speed_kmh": 4.5}         |Austin     |Texas   |United States|30.26715|-97.74306|2026-10-24T01:00|America/Chicago|2026-10-24T06:11:00.698224+00:00|18.9         |18.7        |61              |0.0             |4.5           |
+|20261024011312720  |20261024011312720_0_4|cityweather:0:5   |weather_date=2026-10-24|619ede17-56ae-4aec-b137-b10845cb99d4-0_0-39-2416_20261024011312720.parquet|cityweather:0:5|cityweather|0              |5     |2026-10-24 01:13:08.999|{"city": "Chicago", "region": "Illinois", "country": "United States", "latitude": 41.85003, "longitude": -87.65005, "weather_time": "2026-10-24T01:00", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T06:13:08.988777+00:00", "temperature_c": 11.3, "feels_like_c": 9.4, "humidity_percent": 82, "precipitation_mm": 0.0, "wind_speed_kmh": 9.6}      |Chicago    |Illinois|United States|41.85003|-87.65005|2026-10-24T01:00|America/Chicago|2026-10-24T06:13:08.988777+00:00|11.3         |9.4         |82              |0.0             |9.6           |
+|20261024003002259  |20261024003002259_0_0|cityweather:0:0   |weather_date=2026-10-23|e5224b5a-5315-4973-aa74-a9be7fa42bc5-0_0-33-27_20261024003002259.parquet  |cityweather:0:0|cityweather|0              |0     |2026-10-23 19:45:42.928|{"city": "Dallas", "region": "Texas", "country": "United States", "latitude": 32.78306, "longitude": -96.80667, "weather_time": "2026-10-23T19:45", "timezone": "America/Chicago", "fetched_at_utc": "2026-10-24T00:45:42.917890+00:00", "temperature_c": 23.5, "feels_like_c": 21.6, "humidity_percent": 35, "precipitation_mm": 0.0, "wind_speed_kmh": 8.0}         |Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-23T19:45|America/Chicago|2026-10-24T00:45:42.917890+00:00|23.5         |21.6        |35              |0.0             |8.0           |
++-------------------+---------------------+------------------+-----------------------+--------------------------------------------------------------------------+---------------+-----------+---------------+------------+-----------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+-------------+--------+---------+----------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+
+
+record_key ,kafka_topic,city       |region  |country      |latitude|longitude|weather_time    |timezone       |fetched_at_utc                  |temperature_c|feels_like_c|humidity_percent|precipitation_mm|wind_speed_kmh|
+temperature_c|feels_like_c|humidity_percent|precipitation_mm|wind_speed_kmh|
+
+
+
++---------------+-----------+-----------+--------+-------------+--------+---------+----------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+
+|record_key     |kafka_topic|city       |region  |country      |latitude|longitude|weather_time    |timezone       |fetched_at_utc                  |temperature_c|feels_like_c|humidity_percent|precipitation_mm|wind_speed_kmh|
++---------------+-----------+-----------+--------+-------------+--------+---------+----------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+
+|cityweather:0:1|cityweather|Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-24T00:30|America/Chicago|2026-10-24T05:37:35.358774+00:00|18.2         |16.6        |51              |0.0             |7.1           |
+|cityweather:0:2|cityweather|Frisco     |Texas   |United States|33.15067|-96.82361|2026-10-24T00:30|America/Chicago|2026-10-24T05:43:22.016920+00:00|18.2         |15.1        |46              |0.0             |15.5          |
+|cityweather:0:3|cityweather|Bentonville|Arkansas|United States|36.37285|-94.20882|2026-10-24T01:00|America/Chicago|2026-10-24T06:00:45.687260+00:00|14.7         |12.4        |66              |0.0             |13.2          |
+|cityweather:0:4|cityweather|Austin     |Texas   |United States|30.26715|-97.74306|2026-10-24T01:00|America/Chicago|2026-10-24T06:11:00.698224+00:00|18.9         |18.7        |61              |0.0             |4.5           |
+|cityweather:0:5|cityweather|Chicago    |Illinois|United States|41.85003|-87.65005|2026-10-24T01:00|America/Chicago|2026-10-24T06:13:08.988777+00:00|11.3         |9.4         |82              |0.0             |9.6           |
+|cityweather:0:0|cityweather|Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-23T19:45|America/Chicago|2026-10-24T00:45:42.917890+00:00|23.5         |21.6        |35              |0.0             |8.0           |
++---------------+-----------+-----------+--------+-------------+--------+---------+----------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--
+
+df = spark.read.format("hudi").load(
+    "s3a://s3-kadka-api-raw/raw/parquet"
+)
+
+df.select(
+    "record_key",
+    "kafka_topic",
+    "city",
+    "region",
+    "country",
+    "latitude",
+    "longitude",
+    "weather_time",
+    "timezone",
+    "fetched_at_utc",
+    "temperature_c",
+    "feels_like_c",
+    "humidity_percent",
+    "precipitation_mm",
+    "wind_speed_kmh",
+).show(n=100, truncate=False)
+
+In PowerShell, set the LocalStack credentials and list the curated Hudi objects:
+
+$env:AWS_ACCESS_KEY_ID = "test"
+$env:AWS_SECRET_ACCESS_KEY = "test"
+$env:AWS_DEFAULT_REGION = "us-east-1"
+aws --endpoint-url=http://localhost:4566 s3 ls s3://s3-kadka-api-raw/curated/weather/ --recursive
+
+To query the records in Spark, use:
+
+spark.read.format("hudi").load("s3a://s3-kadka-api-raw/curated/weather").select("record_key", "city", "weather_date", "weather_time", "load_date", "temperature_c").show(100, truncate=False)
+
+spark.read.format("hudi").load(
+    "s3a://s3-kadka-api-raw/raw/parquet"
+).select("*").show(truncate=False)
+
+
+spark.read.format("hudi").load("s3a://s3-kadka-api-raw/raw/parquet").printSchema()
+
+root
+ |-- _hoodie_commit_time: string (nullable = true)
+ |-- _hoodie_commit_seqno: string (nullable = true)
+ |-- _hoodie_record_key: string (nullable = true)
+ |-- _hoodie_partition_path: string (nullable = true)
+ |-- _hoodie_file_name: string (nullable = true)
+ |-- record_key: string (nullable = false)
+ |-- kafka_topic: string (nullable = true)
+ |-- city: string (nullable = true)
+ |-- region: string (nullable = true)
+ |-- country: string (nullable = true)
+ |-- latitude: double (nullable = true)
+ |-- longitude: double (nullable = true)
+ |-- weather_date: string (nullable = true)
+ |-- weather_time: string (nullable = true)
+ |-- timezone: string (nullable = true)
+ |-- fetched_at_utc: string (nullable = true)
+ |-- temperature_c: double (nullable = true)
+ |-- feels_like_c: double (nullable = true)
+ |-- humidity_percent: integer (nullable = true)
+ |-- precipitation_mm: double (nullable = true)
+ |-- wind_speed_kmh: double (nullable = true)
+ |-- load_date: date (nullable = false)
+
+
+
+
++-------------------+---------------------+------------------+-----------------------+------------------------------------------------------------------------+---------------+-----------+-----------+--------+-------------+--------+---------+------------+------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+----------+
+|_hoodie_commit_time|_hoodie_commit_seqno |_hoodie_record_key|_hoodie_partition_path |_hoodie_file_name                                                       |record_key     |kafka_topic|city       |region  |country      |latitude|longitude|weather_date|weather_time|timezone       |fetched_at_utc                  |temperature_c|feels_like_c|humidity_percent|precipitation_mm|wind_speed_kmh|load_date |
++-------------------+---------------------+------------------+-----------------------+------------------------------------------------------------------------+---------------+-----------+-----------+--------+-------------+--------+---------+------------+------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+----------+
+|20261024092237590  |20261024092237590_0_0|cityweather:0:5   |weather_date=2026-10-24|e1334456-ffd5-4767-bd14-c7cc518ec281-0_0-21-30_20261024092237590.parquet|cityweather:0:5|cityweather|Chicago    |Illinois|United States|41.85003|-87.65005|2026-10-24  |01:00:00    |America/Chicago|2026-10-24T06:13:08.988777+00:00|11.3         |9.4         |82              |0.0             |9.6           |2026-10-24|
+|20261024092237590  |20261024092237590_0_1|cityweather:0:1   |weather_date=2026-10-24|e1334456-ffd5-4767-bd14-c7cc518ec281-0_0-21-30_20261024092237590.parquet|cityweather:0:1|cityweather|Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-24  |00:30:00    |America/Chicago|2026-10-24T05:37:35.358774+00:00|18.2         |16.6        |51              |0.0             |7.1           |2026-10-24|
+|20261024092237590  |20261024092237590_0_2|cityweather:0:3   |weather_date=2026-10-24|e1334456-ffd5-4767-bd14-c7cc518ec281-0_0-21-30_20261024092237590.parquet|cityweather:0:3|cityweather|Bentonville|Arkansas|United States|36.37285|-94.20882|2026-10-24  |01:00:00    |America/Chicago|2026-10-24T06:00:45.687260+00:00|14.7         |12.4        |66              |0.0             |13.2          |2026-10-24|
+|20261024092237590  |20261024092237590_0_3|cityweather:0:4   |weather_date=2026-10-24|e1334456-ffd5-4767-bd14-c7cc518ec281-0_0-21-30_20261024092237590.parquet|cityweather:0:4|cityweather|Austin     |Texas   |United States|30.26715|-97.74306|2026-10-24  |01:00:00    |America/Chicago|2026-10-24T06:11:00.698224+00:00|18.9         |18.7        |61              |0.0             |4.5           |2026-10-24|
+|20261024092237590  |20261024092237590_0_4|cityweather:0:2   |weather_date=2026-10-24|e1334456-ffd5-4767-bd14-c7cc518ec281-0_0-21-30_20261024092237590.parquet|cityweather:0:2|cityweather|Frisco     |Texas   |United States|33.15067|-96.82361|2026-10-24  |00:30:00    |America/Chicago|2026-10-24T05:43:22.016920+00:00|18.2         |15.1        |46              |0.0             |15.5          |2026-10-24|
+|20261024092237590  |20261024092237590_1_0|cityweather:0:0   |weather_date=2026-10-23|ea7b81e9-9385-40fc-90f2-a8e9deafda60-0_1-21-31_20261024092237590.parquet|cityweather:0:0|cityweather|Dallas     |Texas   |United States|32.78306|-96.80667|2026-10-23  |19:45:00    |America/Chicago|2026-10-24T00:45:42.917890+00:00|23.5         |21.6        |35              |0.0             |8.0           |2026-10-24|
++-------------------+---------------------+------------------+-----------------------+------------------------------------------------------------------------+---------------+-----------+-----------+--------+-------------+--------+---------+------------+------------+---------------+--------------------------------+-------------+------------+----------------+----------------+--------------+----------+
