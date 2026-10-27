@@ -1,0 +1,2 @@
+record_number,topic,saved_at_utc,kafka_message
+7,cityweather,2026-10-27T00:14:18.102661+00:00,"{""city"": ""Trenton"", ""region"": ""New Jersey"", ""country"": ""United States"", ""latitude"": 40.21705, ""longitude"": -74.74294, ""weather_time"": ""2026-10-24T13:30"", ""timezone"": ""America/New_York"", ""fetched_at_utc"": ""2026-10-24T17:38:03.915180+00:00"", ""temperature_c"": 15.9, ""feels_like_c"": 13.9, ""humidity_percent"": 33, ""precipitation_mm"": 0.0, ""wind_speed_kmh"": 2.3}"

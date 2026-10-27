@@ -1,0 +1,2 @@
+record_number,topic,saved_at_utc,kafka_message
+4,cityweather,2026-10-27T00:14:18.080055+00:00,"{""city"": ""Bentonville"", ""region"": ""Arkansas"", ""country"": ""United States"", ""latitude"": 36.37285, ""longitude"": -94.20882, ""weather_time"": ""2026-10-24T01:00"", ""timezone"": ""America/Chicago"", ""fetched_at_utc"": ""2026-10-24T06:00:45.687260+00:00"", ""temperature_c"": 14.7, ""feels_like_c"": 12.4, ""humidity_percent"": 66, ""precipitation_mm"": 0.0, ""wind_speed_kmh"": 13.2}"

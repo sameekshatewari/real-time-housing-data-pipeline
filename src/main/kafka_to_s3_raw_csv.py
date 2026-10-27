@@ -4,12 +4,13 @@ import io
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 
 import boto3
 from botocore.client import Config
 from botocore.exceptions import BotoCoreError, ClientError
-from kafka import KafkaConsumer
+from kafka import KafkaConsumer, TopicPartition
 from kafka.errors import KafkaError
 
 
@@ -72,12 +73,41 @@ def parse_arguments():
         default=0,
         help="Stop after consuming N records. Use 0 to run continuously.",
     )
+    parser.add_argument(
+        "--idle-timeout-seconds",
+        type=int,
+        default=0,
+        help="Stop after this many seconds without a record; 0 waits forever.",
+    )
+    parser.add_argument(
+        "--partition",
+        type=int,
+        default=None,
+        help="Kafka partition to seek before consuming a specific offset.",
+    )
+    parser.add_argument(
+        "--starting-offset",
+        type=int,
+        default=None,
+        help="Consume from this exact Kafka offset (requires --partition).",
+    )
+    parser.add_argument(
+        "--require-messages",
+        action="store_true",
+        help="Fail if no records arrive before the idle timeout.",
+    )
 
     args = parser.parse_args()
     if args.batch_size < 1:
         parser.error("--batch-size must be greater than zero")
-    if args.max_messages < 0:
-        parser.error("--max-messages must be zero or greater")
+    if args.max_messages < 0 or args.idle_timeout_seconds < 0:
+        parser.error(
+            "--max-messages and --idle-timeout-seconds must be zero or greater"
+        )
+    if (args.partition is None) != (args.starting_offset is None):
+        parser.error("--partition and --starting-offset must be provided together")
+    if args.partition is not None and (args.partition < 0 or args.starting_offset < 0):
+        parser.error("--partition and --starting-offset must be zero or greater")
 
     normalized_servers = []
     for server in args.bootstrap_server.split(","):
@@ -185,20 +215,36 @@ def main():
             for row in rows
         }
 
-        consumer = KafkaConsumer(
-            args.topic,
-            bootstrap_servers=args.bootstrap_server,
-            group_id=args.group_id,
-            enable_auto_commit=False,
-            auto_offset_reset="earliest",
-            max_poll_records=args.batch_size,
-        )
+        consumer_options = {
+            "bootstrap_servers": args.bootstrap_server,
+            "group_id": args.group_id,
+            "enable_auto_commit": False,
+            "auto_offset_reset": "earliest",
+            "max_poll_records": args.batch_size,
+        }
+        if args.starting_offset is None:
+            consumer = KafkaConsumer(args.topic, **consumer_options)
+        else:
+            consumer = KafkaConsumer(**consumer_options)
+            available_partitions = consumer.partitions_for_topic(args.topic)
+            if (
+                available_partitions is None
+                or args.partition not in available_partitions
+            ):
+                raise ValueError(
+                    f"Kafka topic {args.topic!r} has no partition "
+                    f"{args.partition}."
+                )
+            topic_partition = TopicPartition(args.topic, args.partition)
+            consumer.assign([topic_partition])
+            consumer.seek(topic_partition, args.starting_offset)
 
         destination = f"s3://{args.bucket}/{args.key}"
         print(f"Kafka topic: {args.topic}", flush=True)
         print(f"S3 destination: {destination}", flush=True)
         print(f"Existing CSV records: {len(rows)}", flush=True)
         print("Waiting for Kafka records. Press Ctrl+C to stop.", flush=True)
+        last_message_at = time.monotonic()
 
         while True:
             remaining = (
@@ -219,8 +265,15 @@ def main():
                 for message in partition_messages
             ]
             if not batch:
+                if (
+                    args.idle_timeout_seconds
+                    and time.monotonic() - last_message_at
+                    >= args.idle_timeout_seconds
+                ):
+                    break
                 continue
             processed_count += len(batch)
+            last_message_at = time.monotonic()
 
             new_rows = []
             for message in batch:
@@ -254,6 +307,11 @@ def main():
             consumer.commit()
 
         print(f"Finished. New records uploaded: {saved_count}", flush=True)
+        if args.require_messages and processed_count == 0:
+            raise TimeoutError(
+                f"No Kafka records arrived on {args.topic!r} partition "
+                f"{args.partition} at offset {args.starting_offset}."
+            )
         return 0
 
     except KeyboardInterrupt:
@@ -276,6 +334,7 @@ def main():
         BotoCoreError,
         ClientError,
         OSError,
+        TimeoutError,
         UnicodeError,
         ValueError,
     ) as exc:

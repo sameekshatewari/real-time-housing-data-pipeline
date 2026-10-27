@@ -1,0 +1,2 @@
+record_number,topic,saved_at_utc,kafka_message
+2,cityweather,2026-10-27T00:14:18.064807+00:00,"{""city"": ""Dallas"", ""region"": ""Texas"", ""country"": ""United States"", ""latitude"": 32.78306, ""longitude"": -96.80667, ""weather_time"": ""2026-10-24T00:30"", ""timezone"": ""America/Chicago"", ""fetched_at_utc"": ""2026-10-24T05:37:35.358774+00:00"", ""temperature_c"": 18.2, ""feels_like_c"": 16.6, ""humidity_percent"": 51, ""precipitation_mm"": 0.0, ""wind_speed_kmh"": 7.1}"

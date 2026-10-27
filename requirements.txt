@@ -1,2 +1,4 @@
 boto3>=1.35
+kafka-python>=2.0.2
 pyspark==3.5.9
+requests>=2.31

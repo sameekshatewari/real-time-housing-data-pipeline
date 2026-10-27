@@ -2,14 +2,15 @@ import argparse
 import csv
 import json
 import os
-import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from kafka import KafkaConsumer
+from kafka.errors import KafkaError
 
-# Script location: kafksapi/src/main/kafka_to_csv.py
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "data" / "input"
 
@@ -17,47 +18,48 @@ DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "data" / "input"
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description=(
-            "Read weather messages through Docker's Kafka console "
-            "consumer and save each message as a raw CSV file."
+            "Consume Kafka weather messages and save each as a local CSV file."
         )
     )
-
     parser.add_argument(
-        "--container",
-        default="kafka-api",
-        help="Kafka Docker container name. Default: kafka-api",
+        "--bootstrap-server",
+        default="127.0.0.1:9092",
+        help="Kafka broker address. Default: 127.0.0.1:9092",
     )
-
     parser.add_argument(
         "--topic",
         default="cityweather",
         help="Kafka topic. Default: cityweather",
     )
-
     parser.add_argument(
-        "--bootstrap-server",
-        default="localhost:9092",
-        help="Broker address INSIDE the container.",
+        "--group-id",
+        default="cityweather-local-csv",
+        help="Kafka consumer group. Default: cityweather-local-csv",
     )
-
     parser.add_argument(
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
         help="Default: project-root/data/input",
     )
-
     parser.add_argument(
         "--max-messages",
         type=int,
         default=0,
         help="Stop after N saved messages. Default: 0 runs continuously.",
     )
-
+    parser.add_argument(
+        "--idle-timeout-seconds",
+        type=int,
+        default=0,
+        help="Stop after this many seconds without a message; 0 waits forever.",
+    )
     args = parser.parse_args()
 
-    if args.max_messages < 0:
-        parser.error("--max-messages must be zero or greater")
+    if args.max_messages < 0 or args.idle_timeout_seconds < 0:
+        parser.error(
+            "--max-messages and --idle-timeout-seconds must be zero or greater"
+        )
 
     return args
 
@@ -106,23 +108,6 @@ def save_csv(raw_message, record_number, run_id, topic, output_dir):
     return final_path
 
 
-def stop_consumer(process):
-    if process is None:
-        return
-
-    if process.poll() is None:
-        process.terminate()
-
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
-
-    if process.stdout is not None:
-        process.stdout.close()
-
-
 def main():
     args = parse_arguments()
     output_dir = args.output_dir.resolve()
@@ -132,83 +117,68 @@ def main():
         + "_"
         + uuid4().hex[:8]
     )
-
-    process = None
     saved_count = 0
-
-    # Do not use -it: Python reads stdout through a pipe.
-    command = [
-        "docker",
-        "exec",
-        args.container,
-        "/opt/kafka/bin/kafka-console-consumer.sh",
-        "--bootstrap-server",
-        args.bootstrap_server,
-        "--topic",
-        args.topic,
-        "--from-beginning",
-    ]
-
-    if args.max_messages > 0:
-        command.extend([
-            "--max-messages",
-            str(args.max_messages),
-        ])
+    consumer = None
 
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
-
-        print(f"Container: {args.container}", flush=True)
+        print(f"Kafka broker: {args.bootstrap_server}", flush=True)
         print(f"Topic: {args.topic}", flush=True)
         print(f"Output directory: {output_dir}", flush=True)
+        consumer = KafkaConsumer(
+            args.topic,
+            bootstrap_servers=args.bootstrap_server,
+            group_id=args.group_id,
+            enable_auto_commit=False,
+            auto_offset_reset="earliest",
+            max_poll_records=args.max_messages or 100,
+        )
         print(
-            "Waiting for weather messages. Press Ctrl+C to stop.",
+            f"Consumer group: {args.group_id}. Waiting for weather messages.",
             flush=True,
         )
-
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            # Keep Docker/Kafka diagnostics separate from message data.
-            stderr=None,
-            text=True,
-            encoding="utf-8",
-            errors="strict",
-            bufsize=1,
-        )
-
-        for line in process.stdout:
-            raw_message = line.rstrip("\r\n")
-
-            if not raw_message.strip():
+        last_message_at = time.monotonic()
+        while not args.max_messages or saved_count < args.max_messages:
+            remaining = (
+                args.max_messages - saved_count
+                if args.max_messages
+                else 100
+            )
+            records = [
+                message
+                for partition_records in consumer.poll(
+                    timeout_ms=1000,
+                    max_records=min(100, remaining),
+                ).values()
+                for message in partition_records
+            ]
+            if not records:
+                if (
+                    args.idle_timeout_seconds
+                    and time.monotonic() - last_message_at
+                    >= args.idle_timeout_seconds
+                ):
+                    break
                 continue
 
-            record_number = saved_count + 1
-
-            file_path = save_csv(
-                raw_message=raw_message,
-                record_number=record_number,
-                run_id=run_id,
-                topic=args.topic,
-                output_dir=output_dir,
-            )
-
-            saved_count += 1
-
-            print(
-                f"Saved record {record_number}: {file_path.name}",
-                flush=True,
-            )
-
-        return_code = process.wait()
-
-        if return_code != 0:
-            print(
-                f"Docker/Kafka consumer exited with code {return_code}.",
-                file=sys.stderr,
-                flush=True,
-            )
-            return 1
+            for message in records:
+                raw_message = message.value.decode("utf-8")
+                file_path = save_csv(
+                    raw_message=raw_message,
+                    record_number=saved_count + 1,
+                    run_id=run_id,
+                    topic=message.topic,
+                    output_dir=output_dir,
+                )
+                saved_count += 1
+                last_message_at = time.monotonic()
+                consumer.commit()
+                print(
+                    f"Saved record {saved_count}: {file_path.name}",
+                    flush=True,
+                )
+                if args.max_messages and saved_count >= args.max_messages:
+                    break
 
         print(
             f"Consumer finished. CSV files saved: {saved_count}",
@@ -223,24 +193,23 @@ def main():
         )
         return 130
 
-    except json.JSONDecodeError as exc:
+    except (
+        KafkaError,
+        OSError,
+        UnicodeError,
+        ValueError,
+    ) as exc:
         print(
-            f"\nReceived a message that is not valid JSON: {exc}",
-            file=sys.stderr,
-            flush=True,
-        )
-        return 1
-
-    except (OSError, UnicodeError, ValueError) as exc:
-        print(
-            f"\nConsumer or file error: {exc}",
+            f"\nKafka consumer or local CSV write failed: "
+            f"{type(exc).__name__}: {exc}",
             file=sys.stderr,
             flush=True,
         )
         return 1
 
     finally:
-        stop_consumer(process)
+        if consumer is not None:
+            consumer.close()
 
 
 if __name__ == "__main__":

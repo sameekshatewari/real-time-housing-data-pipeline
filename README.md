@@ -3,6 +3,31 @@
 Fetch current weather for a city and publish a JSON record to the Kafka topic
 `cityweather`.
 
+## Pipeline architecture and Airflow
+
+The project includes Kafka ingestion, local CSV output, S3 raw CSV, a Kafka to
+raw Hudi stream, raw-to-curated Hudi, and a PostgreSQL loader. Airflow DAGs
+are in `src/main/dags/`, named `dag_<script>.py`, and use external script
+processes so Spark/Hudi is not imported while Airflow parses DAGs. The finite
+Hudi Airflow DAG calls the Linux shell runner in `src/scripts/`; Windows
+PowerShell start/stop scripts in that folder run the continuous host stream.
+The manual `dag_api_to_s3` workflow fetches one weather record, captures the
+Kafka partition and offset, and writes that exact record to the existing raw
+S3 CSV.
+
+See [docs/architecture.md](docs/architecture.md) for the script/DAG inventory,
+runtime requirements, Airflow configuration, and start/stop commands. Run the
+non-destructive service and local Hudi checks before triggering jobs:
+
+```powershell
+.\.venv\Scripts\python.exe .\test\test_pipeline_preflight.py
+```
+
+Airflow DAGs read job configuration and service credentials from Airflow
+Variables. Set the PostgreSQL password in the Airflow Variable `db_password`;
+the Hudi-to-PostgreSQL DAG passes it to the process at runtime without
+embedding it in DAG code.
+
 ## Kafka container
 
 The `kafka-api` container publishes Kafka only to this Windows machine and
@@ -83,12 +108,18 @@ adds new rows, then replaces the object with the complete expanded CSV. Kafka
 offsets are committed only after a successful upload; replayed offsets are
 skipped.
 
-Ensure the bucket exists in LocalStack, then start the consumer:
+Configure the AWS CLI with LocalStack's placeholder credentials, and use the
+existing bucket (this command does not create it):
 
 ```powershell
-aws --endpoint-url=http://localhost:4566 s3 mb s3://s3-kadka-api-raw
+$env:AWS_ACCESS_KEY_ID = "test"
+$env:AWS_SECRET_ACCESS_KEY = "test"
+aws --region us-east-1 --endpoint-url=http://localhost:4566 s3 ls s3://s3-kadka-api-raw/
 .\.venv\Scripts\python.exe .\src\main\kafka_to_s3_raw_csv.py
 ```
+
+LocalStack accepts these placeholder credentials; they are not real AWS keys.
+Keep them set in the PowerShell session for the AWS CLI commands below.
 
 The consumer runs continuously; press `Ctrl+C` to stop. It defaults to Kafka
 at `127.0.0.1:9092` and LocalStack at `http://localhost:4566`. Use
@@ -212,11 +243,12 @@ The loader writes directly to `weather.weather_data` in batches and uses the
 unique `record_key` index for upserts; it does not create a staging schema.
 Existing weather rows are not deleted.
 
-Set the database password in the current PowerShell session and run the job
-from the project root:
+Set the database password as the Airflow Variable `db_password` before
+triggering `dag_s3_hudi_to_dbload`. For a direct local run, set it in the
+current PowerShell session:
 
 ```powershell
-$env:WEATHER_DB_PASSWORD = "batch123"
+$env:WEATHER_DB_PASSWORD = "<your database password>"
 .\.venv\Scripts\python.exe .\src\main\s3_hudi_to_dbload.py
 ```
 

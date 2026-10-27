@@ -1,0 +1,2 @@
+record_number,topic,saved_at_utc,kafka_message
+6,cityweather,2026-10-27T00:14:18.093623+00:00,"{""city"": ""Chicago"", ""region"": ""Illinois"", ""country"": ""United States"", ""latitude"": 41.85003, ""longitude"": -87.65005, ""weather_time"": ""2026-10-24T01:00"", ""timezone"": ""America/Chicago"", ""fetched_at_utc"": ""2026-10-24T06:13:08.988777+00:00"", ""temperature_c"": 11.3, ""feels_like_c"": 9.4, ""humidity_percent"": 82, ""precipitation_mm"": 0.0, ""wind_speed_kmh"": 9.6}"

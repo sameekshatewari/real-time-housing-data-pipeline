@@ -1,0 +1,2 @@
+record_number,topic,saved_at_utc,kafka_message
+5,cityweather,2026-10-27T00:14:18.086956+00:00,"{""city"": ""Austin"", ""region"": ""Texas"", ""country"": ""United States"", ""latitude"": 30.26715, ""longitude"": -97.74306, ""weather_time"": ""2026-10-24T01:00"", ""timezone"": ""America/Chicago"", ""fetched_at_utc"": ""2026-10-24T06:11:00.698224+00:00"", ""temperature_c"": 18.9, ""feels_like_c"": 18.7, ""humidity_percent"": 61, ""precipitation_mm"": 0.0, ""wind_speed_kmh"": 4.5}"

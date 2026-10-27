@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -96,6 +97,14 @@ def parse_arguments():
         default="10 seconds",
         help='Spark micro-batch interval. Default: "10 seconds".',
     )
+    parser.add_argument(
+        "--available-now",
+        action="store_true",
+        help=(
+            "Process Kafka records currently available and exit. "
+            "Useful for a finite Airflow task."
+        ),
+    )
     args = parser.parse_args()
 
     servers = []
@@ -151,8 +160,14 @@ def create_spark_session(args):
         .config("spark.hadoop.fs.s3a.endpoint", args.endpoint_url)
         .config("spark.hadoop.fs.s3a.path.style.access", "true")
         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-        .config("spark.hadoop.fs.s3a.access.key", "test")
-        .config("spark.hadoop.fs.s3a.secret.key", "test")
+        .config(
+            "spark.hadoop.fs.s3a.access.key",
+            os.getenv("AWS_ACCESS_KEY_ID", "test"),
+        )
+        .config(
+            "spark.hadoop.fs.s3a.secret.key",
+            os.getenv("AWS_SECRET_ACCESS_KEY", "test"),
+        )
         .config(
             "spark.hadoop.fs.s3a.aws.credentials.provider",
             "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
@@ -277,7 +292,7 @@ def main():
             flush=True,
         )
 
-        query = (
+        writer = (
             raw_weather.writeStream.foreachBatch(
                 lambda batch_df, batch_id: write_micro_batch(
                     batch_df,
@@ -286,9 +301,13 @@ def main():
                 )
             )
             .option("checkpointLocation", checkpoint_uri)
-            .trigger(processingTime=args.trigger_interval)
-            .start()
         )
+        if args.available_now:
+            query = writer.trigger(availableNow=True).start()
+        else:
+            query = writer.trigger(
+                processingTime=args.trigger_interval
+            ).start()
 
         query.awaitTermination()
         return 0
